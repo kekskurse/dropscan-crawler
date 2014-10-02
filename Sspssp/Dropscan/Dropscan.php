@@ -19,42 +19,12 @@ class Dropscan
 		$this->boxes = $this->parseBoxIds($res->body);
 		#var_dump($res);
 	}
-	private function parseBoxIds($requestBody)
-	{
-		$boxids = array();
-		$regex = "@\/scanbox\/inbox\?box=([a-z0-9]*)@";
-		preg_match_all($regex, $requestBody, $matches);
-		foreach($matches[1] as $m) {
-			if (!in_array($m, $boxids)) {
-				$boxids[] = $m;
-			}
-		}
-		return $boxids;
-		#var_dump($matches);
-	}
+	
 	public function getBoxIds()
 	{
 		return $this->boxes;
 	}
 
-	/*public function getInbox($boxid = NULL)
-	{
-		if($boxid == NULL)
-		{
-			$boxid = $this->boxes[0];
-		}
-		$res = $this->curl->get("https://secure.dropscan.de/scanbox/inbox?box=".$boxid);
-		$regex = '@mailing=([0-9a-z]*)[^"]*"\swidth=\"[0-9]*\"\/></a>\s*<time>am\s([0-9]{2}\.[0-9]{2}\.[0-9]{2})</time@m';
-		preg_match_all($regex, $res->body, $matches);
-		$letters = array();
-		for($i=0;$i<count($matches[0]);$i++)
-		{
-			$letter["id"] = $matches[1][$i];
-			$letter["received"] = $matches[2][$i];
-			$letters[] = $letter;
-		}
-		return $letters;
-	}*/
 	public function getInbox($boxid = NULL)
 	{
 		if($boxid == NULL)
@@ -125,6 +95,27 @@ class Dropscan
 		return $letterDetails;
 	}
 
+	//Not Tested now
+	public function scan($letter, $box = NULL)
+	{
+		if($box==NULL)
+		{
+			$box = $this->boxes[0];
+		}
+		$res = $this->curl->get("https://secure.dropscan.de/scanbox/request", array("request" => "scan", "box" => $box, "mailing" => $letter));
+	}
+
+	public function destroy($letter, $box = NULL)
+	{
+		if($box==NULL)
+		{
+			$box = $this->boxes[0];
+		}
+		$res = $this->curl->get("https://secure.dropscan.de/scanbox/request", array("request" => "destroy-mailing", "box" => $box, "mailing" => $letter));
+	}
+
+	//Helper Functions
+
 
 	private function getLetters($res)
 	{
@@ -164,6 +155,20 @@ class Dropscan
 
 		#var_dump($date);
 		return $date;
+	}
+
+	private function parseBoxIds($requestBody)
+	{
+		$boxids = array();
+		$regex = "@\/scanbox\/inbox\?box=([a-z0-9]*)@";
+		preg_match_all($regex, $requestBody, $matches);
+		foreach($matches[1] as $m) {
+			if (!in_array($m, $boxids)) {
+				$boxids[] = $m;
+			}
+		}
+		return $boxids;
+		#var_dump($matches);
 	}
 
 
