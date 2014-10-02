@@ -1,0 +1,7 @@
+config.php
+test.php
+cookies
+cookies*
+vendor
+vendor/*
+composer.lock
