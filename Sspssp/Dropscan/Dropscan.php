@@ -114,6 +114,22 @@ class Dropscan
 		$res = $this->curl->get("https://secure.dropscan.de/scanbox/request", array("request" => "destroy-mailing", "box" => $box, "mailing" => $letter));
 	}
 
+	public function getPreview($letterid, $size = 200)
+	{
+		$res = $this->curl->get("https://secure.dropscan.de/scanbox/front/?mailing=".$letterid."&size=".(int)$size);
+		return $res->body;
+	}
+
+	public function getPDF($letterid, $box = NULL)
+	{
+		if($box==NULL)
+		{
+			$box = $this->boxes[0];
+		}
+		$res = $this->curl->get("https://secure.dropscan.de/scanbox/download", array("mailing" => $letterid, "box"=>$box, "step" => "3", "type"=>""));
+		return $res->body;
+	}
+
 	//Helper Functions
 
 
